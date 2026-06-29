@@ -1,0 +1,42 @@
+services:
+  app:
+    build: .
+    container_name: my_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: my_db
+      DB_USERNAME: postgres
+      DB_PASSWORD: secret
+    depends_on:
+      - db
+
+  node:
+    image: node:22
+    container_name: my_node
+    working_dir: /var/www
+    volumes:
+      - .:/var/www
+    command: ["npm", "run", "dev"]
+    ports:
+      - "5173:5173"
+
+  db:
+    image: postgres:16
+    container_name: my_db
+    environment:
+      POSTGRES_DB: my_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: secret
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
