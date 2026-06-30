@@ -40,6 +40,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Запросы
                                 </NavLink>
+                                <NavLink
+                                    href={route('candidates.index')}
+                                    active={route().current('candidates.*')}
+                                >
+                                    Кандидаты
+                                </NavLink>
                                 {isAdmin && (
                                     <NavLink
                                         href={route('admin.users.index')}
@@ -171,6 +177,12 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current('requests.*')}
                         >
                             Запросы
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            href={route('candidates.index')}
+                            active={route().current('candidates.*')}
+                        >
+                            Кандидаты
                         </ResponsiveNavLink>
                         {isAdmin && (
                             <ResponsiveNavLink
