@@ -1,30 +1,25 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
+import '../css/app.css';
 import './bootstrap';
 
-function App() {
-    return (
-        <div style={{ textAlign: 'center', padding: '50px' }}>
-            <h1 style={{ color: '#6366f1' }}>🚀 Laravel + React работает!</h1>
-            <p>Если вы это видите - React успешно загружен!</p>
-            <button 
-                onClick={() => alert('Привет!')}
-                style={{
-                    background: '#6366f1',
-                    color: 'white',
-                    border: 'none',
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    marginTop: '20px'
-                }}
-            >
-                Нажми меня
-            </button>
-        </div>
-    );
-}
+import { createInertiaApp } from '@inertiajs/react';
+import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import { createRoot } from 'react-dom/client';
 
-const root = createRoot(document.getElementById('app'));
-root.render(<App />);
+const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+
+createInertiaApp({
+    title: (title) => `${title} - ${appName}`,
+    resolve: (name) =>
+        resolvePageComponent(
+            `./Pages/${name}.jsx`,
+            import.meta.glob('./Pages/**/*.jsx'),
+        ),
+    setup({ el, App, props }) {
+        const root = createRoot(el);
+
+        root.render(<App {...props} />);
+    },
+    progress: {
+        color: '#4B5563',
+    },
+});
