@@ -6,13 +6,6 @@ services:
       - "8000:8000"
     volumes:
       - .:/var/www
-    environment:
-      DB_CONNECTION: pgsql
-      DB_HOST: db
-      DB_PORT: 5432
-      DB_DATABASE: my_db
-      DB_USERNAME: postgres
-      DB_PASSWORD: secret
     depends_on:
       - db
 
