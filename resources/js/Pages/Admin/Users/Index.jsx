@@ -1,10 +1,8 @@
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 
 export default function Index({ users }) {
-    const { flash } = usePage().props;
-
     const destroy = (user) => {
         if (
             confirm(
@@ -32,12 +30,6 @@ export default function Index({ users }) {
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    {flash?.success && (
-                        <div className="mb-4 rounded-md bg-green-50 p-4 text-sm text-green-700">
-                            {flash.success}
-                        </div>
-                    )}
-
                     <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-gray-50">
