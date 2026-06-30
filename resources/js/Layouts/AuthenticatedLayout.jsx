@@ -44,6 +44,18 @@ export default function AuthenticatedLayout({ header, children }) {
                                         Пользователи
                                     </NavLink>
                                 )}
+                                {isAdmin && (
+                                    <NavLink
+                                        href={route(
+                                            'admin.technologies.index',
+                                        )}
+                                        active={route().current(
+                                            'admin.technologies.*',
+                                        )}
+                                    >
+                                        Технологии
+                                    </NavLink>
+                                )}
                             </div>
                         </div>
 
@@ -156,6 +168,16 @@ export default function AuthenticatedLayout({ header, children }) {
                                 Пользователи
                             </ResponsiveNavLink>
                         )}
+                        {isAdmin && (
+                            <ResponsiveNavLink
+                                href={route('admin.technologies.index')}
+                                active={route().current(
+                                    'admin.technologies.*',
+                                )}
+                            >
+                                Технологии
+                            </ResponsiveNavLink>
+                        )}
                     </div>
 
                     <div className="border-t border-gray-200 pb-1 pt-4">
@@ -193,7 +215,7 @@ export default function AuthenticatedLayout({ header, children }) {
             )}
 
             <main>{children}</main>
-            
+
             <Toast />
         </div>
     );
