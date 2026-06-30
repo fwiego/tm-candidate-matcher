@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -70,5 +71,21 @@ class User extends Authenticatable
     public function isSupervisor(): bool
     {
         return $this->hasRole(Role::SUPERVISOR);
+    }
+
+    /**
+     * Requests (vacancies) created by this user.
+     */
+    public function createdRequests(): HasMany
+    {
+        return $this->hasMany(JobRequest::class, 'created_by');
+    }
+
+    /**
+     * Candidates whose resume was uploaded by this user.
+     */
+    public function uploadedCandidates(): HasMany
+    {
+        return $this->hasMany(Candidate::class, 'uploaded_by');
     }
 }
