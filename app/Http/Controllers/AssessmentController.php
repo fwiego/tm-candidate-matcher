@@ -6,8 +6,10 @@ use App\Models\Assessment;
 use App\Models\Candidate;
 use App\Models\JobRequest;
 use App\Services\MatchService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response as HttpResponse;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -106,5 +108,68 @@ class AssessmentController extends Controller
                 'requirements'     => $requirements,
             ],
         ]);
+    }
+
+    /**
+     * Download assessment as PDF report.
+     */
+    public function pdf(Assessment $assessment): HttpResponse
+    {
+        $this->authorize('view', $assessment);
+
+        $assessment->load([
+            'candidate',
+            'request.requirements.technology',
+            'requirementResults',
+            'calculatedBy:id,name',
+        ]);
+
+        $requirements = $assessment->request->requirements->map(function ($req) use ($assessment) {
+            $result = $assessment->requirementResults->firstWhere('requirement_id', $req->id);
+
+            return [
+                'technology' => $req->technology->name,
+                'type'       => $req->type,
+                'weight'     => $req->weight,
+                'is_matched' => $result?->is_matched ?? false,
+            ];
+        });
+
+        $mustReqs    = $requirements->where('type', 'must');
+        $niceReqs    = $requirements->where('type', 'nice');
+        $mustMatched = $mustReqs->where('is_matched', true)->count();
+        $niceMatched = $niceReqs->where('is_matched', true)->count();
+
+        $coverageColor = match (true) {
+            $assessment->coverage_percent >= 80 => '#15803d',
+            $assessment->coverage_percent >= 50 => '#b45309',
+            default                             => '#b91c1c',
+        };
+
+        $gradeLabels = [
+            'junior' => 'Junior',
+            'middle' => 'Middle',
+            'senior' => 'Senior',
+            'lead'   => 'Lead',
+        ];
+
+        $pdf = Pdf::loadView('pdf.assessment', [
+            'assessment'    => $assessment,
+            'requirements'  => $requirements,
+            'mustMatched'   => $mustMatched,
+            'mustTotal'     => $mustReqs->count(),
+            'niceMatched'   => $niceMatched,
+            'niceTotal'     => $niceReqs->count(),
+            'coverageColor' => $coverageColor,
+            'gradeLabels'   => $gradeLabels,
+        ]);
+
+        $filename = sprintf(
+            'assessment-%s-%s.pdf',
+            str($assessment->candidate->full_name)->slug(),
+            str($assessment->request->position)->slug(),
+        );
+
+        return $pdf->download($filename);
     }
 }

@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     Route::get('assessments/create', [AssessmentController::class, 'create'])->name('assessments.create');
     Route::post('assessments', [AssessmentController::class, 'store'])->name('assessments.store');
     Route::get('assessments/{assessment}', [AssessmentController::class, 'show'])->name('assessments.show');
+    Route::get('assessments/{assessment}/pdf', [AssessmentController::class, 'pdf'])->name('assessments.pdf');
 });
 
 Route::middleware(['auth', 'role:admin'])
