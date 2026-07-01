@@ -135,8 +135,26 @@ class CandidateController extends Controller
 
         $candidate->load(['skills:id,name,group', 'uploader:id,name']);
 
+        $assessments = $candidate->assessments()
+            ->with(['request:id,position,grade,status', 'calculatedBy:id,name'])
+            ->orderByDesc('coverage_percent')
+            ->get()
+            ->map(fn ($a) => [
+                'id'               => $a->id,
+                'coverage_percent' => $a->coverage_percent,
+                'updated_at'       => $a->updated_at->format('d.m.Y H:i'),
+                'calculated_by'    => $a->calculatedBy?->name,
+                'request'          => [
+                    'id'       => $a->request->id,
+                    'position' => $a->request->position,
+                    'grade'    => $a->request->grade,
+                    'status'   => $a->request->status,
+                ],
+            ]);
+
         return Inertia::render('Candidates/Show', [
-            'candidate' => $candidate,
+            'candidate'   => $candidate,
+            'assessments' => $assessments,
         ]);
     }
 
