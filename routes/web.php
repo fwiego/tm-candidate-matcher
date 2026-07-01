@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\TechnologyController as AdminTechnologyController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\CandidateController;
 use App\Http\Controllers\JobRequestController;
 use App\Http\Controllers\ProfileController;
@@ -25,6 +26,10 @@ Route::middleware('auth')->group(function () {
         ->parameters(['requests' => 'job_request']);
 
     Route::resource('candidates', CandidateController::class);
+
+    Route::get('assessments/create', [AssessmentController::class, 'create'])->name('assessments.create');
+    Route::post('assessments', [AssessmentController::class, 'store'])->name('assessments.store');
+    Route::get('assessments/{assessment}', [AssessmentController::class, 'show'])->name('assessments.show');
 });
 
 Route::middleware(['auth', 'role:admin'])

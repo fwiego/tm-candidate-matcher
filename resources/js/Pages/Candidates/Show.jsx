@@ -1,4 +1,5 @@
 import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, usePage } from '@inertiajs/react';
 
@@ -21,11 +22,20 @@ export default function Show({ candidate }) {
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
                         {candidate.full_name}
                     </h2>
-                    {canEdit && (
-                        <Link href={route('candidates.edit', candidate.id)}>
-                            <PrimaryButton>Редактировать</PrimaryButton>
+                    <div className="flex gap-2">
+                        {canEdit && (
+                            <Link href={route('candidates.edit', candidate.id)}>
+                                <PrimaryButton>Редактировать</PrimaryButton>
+                            </Link>
+                        )}
+                        <Link
+                            href={route('assessments.create', {
+                                candidate_id: candidate.id,
+                            })}
+                        >
+                            <SecondaryButton>Сверить с запросом</SecondaryButton>
                         </Link>
-                    )}
+                    </div>
                 </div>
             }
         >
@@ -66,9 +76,7 @@ export default function Show({ candidate }) {
                                     Файл резюме
                                 </dt>
                                 <dd className="text-gray-900">
-                                    {candidate.file_path
-                                        ?.split('/')
-                                        .pop()}
+                                    {candidate.file_path?.split('/').pop()}
                                 </dd>
                             </div>
                         </dl>
@@ -87,9 +95,7 @@ export default function Show({ candidate }) {
                                         className="inline-flex rounded-full bg-indigo-100 px-3 py-1 text-xs font-medium text-indigo-800"
                                     >
                                         {skill.name}
-                                        {skill.group
-                                            ? ` (${skill.group})`
-                                            : ''}
+                                        {skill.group ? ` (${skill.group})` : ''}
                                     </span>
                                 ))}
                             </div>
