@@ -1,4 +1,5 @@
 import PrimaryButton from '@/Components/PrimaryButton';
+import SecondaryButton from '@/Components/SecondaryButton';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 
@@ -21,7 +22,30 @@ const STATUS_COLORS = {
     closed: 'bg-red-100 text-red-700',
 };
 
-export default function Show({ request, canEdit }) {
+function CoverageBar({ percent }) {
+    const color =
+        percent >= 80
+            ? 'bg-green-500'
+            : percent >= 50
+              ? 'bg-yellow-400'
+              : 'bg-red-400';
+
+    return (
+        <div className="flex items-center gap-2">
+            <div className="h-2 w-24 overflow-hidden rounded-full bg-gray-200">
+                <div
+                    className={`h-full rounded-full ${color}`}
+                    style={{ width: `${percent}%` }}
+                />
+            </div>
+            <span className="text-xs font-medium text-gray-700">
+                {percent}%
+            </span>
+        </div>
+    );
+}
+
+export default function Show({ request, assessments, canEdit }) {
     return (
         <AuthenticatedLayout
             header={
@@ -29,11 +53,20 @@ export default function Show({ request, canEdit }) {
                     <h2 className="text-xl font-semibold leading-tight text-gray-800">
                         {request.position}
                     </h2>
-                    {canEdit && (
-                        <Link href={route('requests.edit', request.id)}>
-                            <PrimaryButton>Редактировать</PrimaryButton>
+                    <div className="flex gap-2">
+                        {canEdit && (
+                            <Link href={route('requests.edit', request.id)}>
+                                <PrimaryButton>Редактировать</PrimaryButton>
+                            </Link>
+                        )}
+                        <Link
+                            href={route('assessments.create', {
+                                request_id: request.id,
+                            })}
+                        >
+                            <SecondaryButton>Сверить кандидата</SecondaryButton>
                         </Link>
-                    )}
+                    </div>
                 </div>
             }
         >
@@ -61,36 +94,24 @@ export default function Show({ request, canEdit }) {
 
                         <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
                             <div>
-                                <dt className="font-medium text-gray-500">
-                                    Локация
-                                </dt>
+                                <dt className="font-medium text-gray-500">Локация</dt>
+                                <dd className="text-gray-900">{request.location || '—'}</dd>
+                            </div>
+                            <div>
+                                <dt className="font-medium text-gray-500">Гражданство</dt>
+                                <dd className="text-gray-900">{request.citizenship || '—'}</dd>
+                            </div>
+                            <div>
+                                <dt className="font-medium text-gray-500">Нужен к дате</dt>
                                 <dd className="text-gray-900">
-                                    {request.location || '—'}
+                                    {request.needed_by
+                                        ? new Date(request.needed_by).toLocaleDateString('ru-RU')
+                                        : '—'}
                                 </dd>
                             </div>
                             <div>
-                                <dt className="font-medium text-gray-500">
-                                    Гражданство
-                                </dt>
-                                <dd className="text-gray-900">
-                                    {request.citizenship || '—'}
-                                </dd>
-                            </div>
-                            <div>
-                                <dt className="font-medium text-gray-500">
-                                    Нужен к дате
-                                </dt>
-                                <dd className="text-gray-900">
-                                    {request.needed_by || '—'}
-                                </dd>
-                            </div>
-                            <div>
-                                <dt className="font-medium text-gray-500">
-                                    Создал
-                                </dt>
-                                <dd className="text-gray-900">
-                                    {request.creator?.name}
-                                </dd>
+                                <dt className="font-medium text-gray-500">Создал</dt>
+                                <dd className="text-gray-900">{request.creator?.name}</dd>
                             </div>
                         </dl>
                     </div>
@@ -118,9 +139,7 @@ export default function Show({ request, canEdit }) {
                                                         : 'bg-blue-50 text-blue-700'
                                                 }`}
                                             >
-                                                {req.type === 'must'
-                                                    ? 'Must'
-                                                    : 'Nice to have'}
+                                                {req.type === 'must' ? 'Must' : 'Nice to have'}
                                             </span>
                                             <span className="text-gray-400">
                                                 вес {req.weight}
@@ -132,6 +151,81 @@ export default function Show({ request, canEdit }) {
                         ) : (
                             <p className="text-sm text-gray-400">
                                 Требования не добавлены.
+                            </p>
+                        )}
+                    </div>
+
+                    <div className="bg-white p-6 shadow-sm sm:rounded-lg">
+                        <div className="mb-4 flex items-center justify-between">
+                            <h3 className="text-sm font-semibold text-gray-700">
+                                Рейтинг кандидатов
+                            </h3>
+                            <Link
+                                href={route('assessments.create', {
+                                    request_id: request.id,
+                                })}
+                                className="text-xs font-medium text-indigo-600 hover:text-indigo-900"
+                            >
+                                + Добавить сверку
+                            </Link>
+                        </div>
+
+                        {assessments?.length > 0 ? (
+                            <table className="min-w-full divide-y divide-gray-100">
+                                <thead>
+                                    <tr className="text-left text-xs font-medium uppercase text-gray-400">
+                                        <th className="pb-2 pr-4">#</th>
+                                        <th className="pb-2 pr-4">Кандидат</th>
+                                        <th className="pb-2 pr-4">Грейд</th>
+                                        <th className="pb-2 pr-4">Локация</th>
+                                        <th className="pb-2 pr-4">Покрытие</th>
+                                        <th className="pb-2 pr-4">Дата</th>
+                                        <th className="pb-2"></th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-50">
+                                    {assessments.map((a, index) => (
+                                        <tr key={a.id} className="text-sm">
+                                            <td className="py-2 pr-4 text-gray-400">
+                                                {index + 1}
+                                            </td>
+                                            <td className="py-2 pr-4 font-medium text-gray-900">
+                                                <Link
+                                                    href={route('candidates.show', a.candidate.id)}
+                                                    className="hover:text-indigo-600"
+                                                >
+                                                    {a.candidate.full_name}
+                                                </Link>
+                                            </td>
+                                            <td className="py-2 pr-4 text-gray-500">
+                                                {a.candidate.grade
+                                                    ? GRADE_LABELS[a.candidate.grade]
+                                                    : '—'}
+                                            </td>
+                                            <td className="py-2 pr-4 text-gray-500">
+                                                {a.candidate.location || '—'}
+                                            </td>
+                                            <td className="py-2 pr-4">
+                                                <CoverageBar percent={a.coverage_percent} />
+                                            </td>
+                                            <td className="py-2 pr-4 text-xs text-gray-400">
+                                                {a.updated_at}
+                                            </td>
+                                            <td className="py-2">
+                                                <Link
+                                                    href={route('assessments.show', a.id)}
+                                                    className="text-xs text-indigo-600 hover:underline"
+                                                >
+                                                    Детали
+                                                </Link>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <p className="text-sm text-gray-400">
+                                Сверок пока нет. Нажмите «Сверить кандидата», чтобы добавить первую.
                             </p>
                         )}
                     </div>

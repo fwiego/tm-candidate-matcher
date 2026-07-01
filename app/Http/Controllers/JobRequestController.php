@@ -85,7 +85,7 @@ class JobRequestController extends Controller
     }
 
     /**
-     * Display the specified request.
+     * Display the specified request with assessments ranking.
      */
     public function show(JobRequest $jobRequest): Response
     {
@@ -93,9 +93,27 @@ class JobRequestController extends Controller
 
         $jobRequest->load(['creator:id,name', 'requirements.technology']);
 
+        $assessments = $jobRequest->assessments()
+            ->with(['candidate:id,full_name,grade,location', 'calculatedBy:id,name'])
+            ->orderByDesc('coverage_percent')
+            ->get()
+            ->map(fn ($a) => [
+                'id'               => $a->id,
+                'coverage_percent' => $a->coverage_percent,
+                'updated_at'       => $a->updated_at->format('d.m.Y H:i'),
+                'calculated_by'    => $a->calculatedBy?->name,
+                'candidate'        => [
+                    'id'        => $a->candidate->id,
+                    'full_name' => $a->candidate->full_name,
+                    'grade'     => $a->candidate->grade,
+                    'location'  => $a->candidate->location,
+                ],
+            ]);
+
         return Inertia::render('Requests/Show', [
-            'request' => $jobRequest,
-            'canEdit' => $jobRequest->status !== 'closed'
+            'request'     => $jobRequest,
+            'assessments' => $assessments,
+            'canEdit'     => $jobRequest->status !== 'closed'
                 && (auth()->user()->isAdmin() || $jobRequest->created_by === auth()->id()),
         ]);
     }
@@ -149,7 +167,6 @@ class JobRequestController extends Controller
                 'status' => $validated['status'],
             ]);
 
-            // Sync requirements: simplest correct approach is replace-all within a transaction.
             $jobRequest->requirements()->delete();
 
             foreach ($validated['requirements'] ?? [] as $req) {
