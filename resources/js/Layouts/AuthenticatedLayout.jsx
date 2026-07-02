@@ -5,6 +5,7 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import Toast from '@/Components/Toast';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import GlobalSearch from '@/Components/GlobalSearch';
 
 export default function AuthenticatedLayout({ header, children }) {
     const { auth } = usePage().props;
@@ -71,7 +72,8 @@ export default function AuthenticatedLayout({ header, children }) {
                             </div>
                         </div>
 
-                        <div className="hidden sm:ms-6 sm:flex sm:items-center">
+                        <div className="hidden sm:ms-6 sm:flex sm:items-center sm:gap-4">
+                            <GlobalSearch />
                             <div className="relative ms-3">
                                 <Dropdown>
                                     <Dropdown.Trigger>
