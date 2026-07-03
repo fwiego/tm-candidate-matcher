@@ -1,11 +1,47 @@
-import ApplicationLogo from '@/Components/ApplicationLogo';
 import Dropdown from '@/Components/Dropdown';
+import GlobalSearch from '@/Components/GlobalSearch';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import Toast from '@/Components/Toast';
 import { Link, usePage } from '@inertiajs/react';
 import { useState } from 'react';
-import GlobalSearch from '@/Components/GlobalSearch';
+
+function MusyaLogo() {
+    return (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <svg
+                width="34"
+                height="34"
+                viewBox="0 0 80 80"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+            >
+                <circle cx="40" cy="40" r="37" stroke="#2C2A24" strokeWidth="3" fill="none" />
+                <text
+                    x="50%"
+                    y="54"
+                    textAnchor="middle"
+                    fontFamily="Georgia, serif"
+                    fontSize="38"
+                    fontWeight="400"
+                    fill="#284166"
+                    fontStyle="italic"
+                >
+                    M
+                </text>
+            </svg>
+            <div style={{ lineHeight: 1.2 }}>
+                <div style={{ fontSize: '15px', fontWeight: '500', color: '#2C2A24', letterSpacing: '0.01em' }}>
+                    <span style={{ color: '#2C2A24' }}>Musya</span>
+                    <span style={{ color: '#284166' }}>Matcher</span>
+                </div>
+                <div style={{ fontSize: '9px', letterSpacing: '0.16em', textTransform: 'uppercase', color: '#2C2A24', fontWeight: '500' }}>
+                    Candidate Platform
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export default function AuthenticatedLayout({ header, children }) {
     const { auth } = usePage().props;
@@ -24,7 +60,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
+                                    <MusyaLogo />
                                 </Link>
                             </div>
 
@@ -50,21 +86,15 @@ export default function AuthenticatedLayout({ header, children }) {
                                 {isAdmin && (
                                     <NavLink
                                         href={route('admin.users.index')}
-                                        active={route().current(
-                                            'admin.users.*',
-                                        )}
+                                        active={route().current('admin.users.*')}
                                     >
                                         Пользователи
                                     </NavLink>
                                 )}
                                 {isAdmin && (
                                     <NavLink
-                                        href={route(
-                                            'admin.technologies.index',
-                                        )}
-                                        active={route().current(
-                                            'admin.technologies.*',
-                                        )}
+                                        href={route('admin.technologies.index')}
+                                        active={route().current('admin.technologies.*')}
                                     >
                                         Технологии
                                     </NavLink>
@@ -83,7 +113,6 @@ export default function AuthenticatedLayout({ header, children }) {
                                                 className="inline-flex items-center rounded-md border border-transparent bg-white px-3 py-2 text-sm font-medium leading-4 text-gray-500 transition duration-150 ease-in-out hover:text-gray-700 focus:outline-none"
                                             >
                                                 {user.name}
-
                                                 <svg
                                                     className="-me-0.5 ms-2 h-4 w-4"
                                                     xmlns="http://www.w3.org/2000/svg"
@@ -101,9 +130,7 @@ export default function AuthenticatedLayout({ header, children }) {
                                     </Dropdown.Trigger>
 
                                     <Dropdown.Content>
-                                        <Dropdown.Link
-                                            href={route('profile.edit')}
-                                        >
+                                        <Dropdown.Link href={route('profile.edit')}>
                                             Profile
                                         </Dropdown.Link>
                                         <Dropdown.Link
@@ -197,9 +224,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         {isAdmin && (
                             <ResponsiveNavLink
                                 href={route('admin.technologies.index')}
-                                active={route().current(
-                                    'admin.technologies.*',
-                                )}
+                                active={route().current('admin.technologies.*')}
                             >
                                 Технологии
                             </ResponsiveNavLink>
