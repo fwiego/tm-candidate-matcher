@@ -1,3 +1,74 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.btn-pill {
+    padding: 10px 24px;
+    border: 0;
+    border-radius: 100px;
+    background-color: #6E9462;
+    color: #ffffff;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+}
+
+.btn-pill:hover {
+    background-color: #5a7d50;
+    box-shadow: 0 4px 16px #6E946240;
+    transform: scale(1.03);
+}
+
+.btn-pill:active {
+    background-color: #3D5E35;
+    transition: all 0.15s ease;
+    box-shadow: none;
+    transform: scale(0.97);
+}
+
+.btn-pill:focus-visible {
+    outline: 2px solid #6E9462;
+    outline-offset: 3px;
+}
+
+.btn-pill-outline {
+    padding: 10px 24px;
+    border: 1.5px solid #6E9462;
+    border-radius: 100px;
+    background-color: transparent;
+    color: #6E9462;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+}
+
+.btn-pill-outline:hover {
+    background-color: #6E9462;
+    color: #ffffff;
+    box-shadow: 0 4px 16px #6E946240;
+    transform: scale(1.03);
+}
+
+.btn-pill-outline:active {
+    background-color: #3D5E35;
+    border-color: #3D5E35;
+    color: #ffffff;
+    transition: all 0.15s ease;
+    box-shadow: none;
+    transform: scale(0.97);
+}
+
+.btn-pill-outline:focus-visible {
+    outline: 2px solid #6E9462;
+    outline-offset: 3px;
+}

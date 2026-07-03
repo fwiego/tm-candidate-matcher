@@ -10,6 +10,11 @@ export default {
         './resources/js/**/*.jsx',
     ],
 
+    safelist: [
+        'btn-pill',
+        'btn-pill-outline',
+    ],
+
     theme: {
         extend: {
             fontFamily: {
