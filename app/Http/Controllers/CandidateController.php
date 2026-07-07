@@ -85,23 +85,22 @@ class CandidateController extends Controller
 
         $matchedTechnologies = $this->skillDetector->detect($rawText);
 
-        $candidate = DB::transaction(function () use ($request, $fullName, $storedPath, $rawText, $matchedTechnologies) {
+        // Auto-detect grade and location from resume text.
+        $detectedGrade    = $this->parser->detectGrade($rawText);
+        $detectedLocation = $this->parser->detectLocation($rawText);
+
+        $candidate = DB::transaction(function () use ($request, $fullName, $storedPath, $rawText, $matchedTechnologies, $detectedGrade, $detectedLocation) {
             $candidate = Candidate::where('full_name', $fullName)->first();
 
             $attributes = [
-                'full_name' => $fullName,
-                'file_path' => $storedPath,
-                'raw_text' => $rawText,
+                'full_name'   => $fullName,
+                'file_path'   => $storedPath,
+                'raw_text'    => $rawText,
                 'uploaded_by' => $request->user()->id,
+                // Manual input takes priority over auto-detected; auto-detected used as fallback.
+                'grade'    => $request->filled('grade') ? $request->input('grade') : ($detectedGrade ?? null),
+                'location' => $request->filled('location') ? $request->input('location') : ($detectedLocation ?? null),
             ];
-
-            // Only overwrite grade/location if explicitly provided; otherwise keep existing values on update.
-            if ($request->filled('grade')) {
-                $attributes['grade'] = $request->input('grade');
-            }
-            if ($request->filled('location')) {
-                $attributes['location'] = $request->input('location');
-            }
 
             if ($candidate) {
                 // Delete the old file before replacing it, to avoid orphaned files accumulating.
@@ -119,9 +118,19 @@ class CandidateController extends Controller
             return $candidate;
         });
 
-        $message = $matchedTechnologies->isNotEmpty()
-            ? "Резюме обработано. Найдено технологий: {$matchedTechnologies->count()}."
-            : 'Резюме обработано, но технологии из справочника не найдены в тексте.';
+        $parts = [];
+        if ($matchedTechnologies->isNotEmpty()) {
+            $parts[] = "найдено технологий: {$matchedTechnologies->count()}";
+        }
+        if ($detectedGrade) {
+            $parts[] = "грейд: {$detectedGrade}";
+        }
+        if ($detectedLocation) {
+            $parts[] = "локация: {$detectedLocation}";
+        }
+
+        $message = 'Резюме обработано.'
+            . ($parts ? ' Определено — '.implode(', ', $parts).'.' : ' Технологии, грейд и локация не найдены.');
 
         return to_route('candidates.show', $candidate)->with('success', $message);
     }
